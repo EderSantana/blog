@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Eder Santana</title>
-    <atom:link href="http://edersantana.github.io/build/feed.xml" rel="self" type="application/rss+xml"></atom:link>
-    <link>http://edersantana.github.io/build</link>
+    <atom:link href="http://edersantana.github.io/blog//feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <link>http://edersantana.github.io/blog/</link>
     <description></description>
     <pubDate>Mon, 14 Dec 2015 16:00:00 -0300</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
       <title>Does AI stand for Alchemical Intelligence?</title>
-      <link>http://edersantana.github.io/build/articles/ai_alchemy/</link>
+      <link>http://edersantana.github.io/blog//articles/ai_alchemy/</link>
       <pubDate>Mon, 14 Dec 2015 16:00:00 -0300</pubDate>
-      <guid isPermaLink="true">http://edersantana.github.io/build/articles/ai_alchemy/</guid>
+      <guid isPermaLink="true">http://edersantana.github.io/blog//articles/ai_alchemy/</guid>
       <author></author>
       <description>&lt;p&gt;AI stands for artificial intelligence, but it currently has a lot in
 common with chemistry in the ages when it was named

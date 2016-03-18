@@ -2,23 +2,317 @@
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Eder Santana</title>
-    <atom:link href="http://edersantana.github.io/blog/feed.xml" rel="self" type="application/rss+xml"></atom:link>
-    <link>http://edersantana.github.io/blog</link>
+    <atom:link href="http://edersantana.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <link>http://edersantana.github.io</link>
     <description></description>
-    <pubDate>Mon, 14 Dec 2015 16:00:00 -0300</pubDate>
+    <pubDate>Wed, 16 Mar 2016 22:25:00 -0400</pubDate>
     <generator>Wintersmith - https://github.com/jnordberg/wintersmith</generator>
     <language>en</language>
     <item>
+      <title>Keras play catch, a single file Reinforcement Learning example</title>
+      <link>http://edersantana.github.io/articles/keras_rl/</link>
+      <pubDate>Wed, 16 Mar 2016 22:25:00 -0400</pubDate>
+      <guid isPermaLink="true">http://edersantana.github.io/articles/keras_rl/</guid>
+      <author></author>
+      <description>&lt;p&gt;Get started with reinforcement learning in less that 200 lines of code with
+Keras (Theano or Tensorflow, it’s your choice).&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/keras_rl/catch.gif&quot; alt=&quot;Keras play catch&quot;&gt;&lt;/p&gt;
+&lt;p&gt;So you are a Machine (Supervised) Learning practitioner that was also sold to the
+hype of making your labels weaker and to the
+possibility of getting neural networks to play your favorite games. You want to
+do Reinforcement Learning (RL). But you find it hard to read all those
+full featured libraries just to get a feeling of what is actually going on.&lt;/p&gt;
+&lt;p&gt;Here we got your back, we took the game engine complexities out of the way and
+show a minimal Reinforcement Learning example with less than 200 lines of code.
+And yes, the example does use Keras, your favorite deep learning library!&lt;/p&gt;
+&lt;p&gt;Before I give you a link to the code make sure you read Nervana’s blog post 
+&lt;a href=&quot;http://www.nervanasys.com/demystifying-deep-reinforcement-learning/&quot;&gt;Demystifying Deep Reinforcement Learning&lt;/a&gt;.
+There you will learn about Q-learning, which is one of the many ways of doing
+RL. Also, at this point you already know that neural nets love mini-batches and there
+you will see what is Experience Replay and how to use it to get you them
+batches. Even in problems where an agent only sees one sample of the environment state
+at a time.&lt;/p&gt;
+&lt;p&gt;So here is the &lt;a href=&quot;https://gist.github.com/EderSantana/c7222daa328f0e885093&quot;&gt;link for our code&lt;/a&gt;.
+In that code Keras plays the catch game, where it should
+catch a single pixel “fruit” using a tree pixels “basket”. The fruit falls one
+pixel per step and the Keras network gets a reward of +1 if it catches the
+fruit and -1 otherwise. The networks see the entire &lt;a href=&quot;https://gist.github.com/EderSantana/c7222daa328f0e885093#file-qlearn-py-L34-L40&quot;&gt;10x10 pixels grid&lt;/a&gt;
+as input and outputs &lt;a href=&quot;https://gist.github.com/EderSantana/c7222daa328f0e885093#file-qlearn-py-L122&quot;&gt;three values&lt;/a&gt;,
+each value corresponds to an action (move left, stay,
+move right). Since these values represent the expected accumulated future
+reward, we just go greedy and pick the
+&lt;a href=&quot;https://gist.github.com/EderSantana/c7222daa328f0e885093#file-qlearn-py-L147-L148&quot;&gt;action corresponding to the largest value&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;One thing to note though, is that this network is not quite like you in exotic
+restaurants, it doesn’t take the very same action exploiting what it already knows
+all the times, once in a while we force system to take a &lt;a href=&quot;https://gist.github.com/EderSantana/c7222daa328f0e885093#file-qlearn-py-L144-L145&quot;&gt;random action&lt;/a&gt;.
+This would be the equivalent of you learning that life goes much beyond just Penang Curry with
+fried Tempeh by trial and error.&lt;/p&gt;
+&lt;p&gt;In the link you will also find scripts that 
+plays the game with no random actions and generate the pictures
+for the animation above.&lt;/p&gt;
+&lt;p&gt;Enjoy!&lt;/p&gt;
+&lt;h2 id=&quot;faq&quot;&gt;FAQ&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;1) How does this Q-learning thing even work?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;C’mon read the blog post I just mentioned above… Anyways, think like this. The
+fruit is almost hitting the ground and your model is just one pixel away from a
+“catching” position. The model will face similar cases many many times. If it decides to
+stay or move left, it will be punished (imagine a bunch of rotten fruits smelling
+in the ground because it was lazy). Thus, it learns to assign a small Q-value
+(sounds much better than just “output of neural net”, han?) to those two actions
+whenever it sees that picture as input. But, since catching the fruit also
+gives a juicy +1 reward, the model will learn to assign a larger Q-value to the
+“move left” action in that case. This is what minimizing the
+&lt;a href=&quot;https://gist.github.com/EderSantana/c7222daa328f0e885093#file-qlearn-py-L98-L106&quot;&gt;reward - Q-valu error&lt;/a&gt; does.&lt;/p&gt;
+&lt;p&gt;One step before that, there will be no reward in the next step.&lt;/p&gt;
+&lt;p&gt;I liked how the previous phrase sounded, so I decided to give it its own
+paragraph. But, although in that case there is no juicy reward right after,
+the model can be trained
+using the maximum Q-value of the future state in the next step.
+Think about it. If you’re in the
+kitchen you know that you can just open the fridge to get food. But now you’re
+in your bedroom writing bad jokes and feel hungry. But you have this vague
+memory that going to the kitchen could help with that. You just go to the kitchen 
+and there you figure how to help yourself. You have to learn all that by living
+the game. I know, being Markovian is hard!
+But then the rest is just propagating these reward expectations further and
+further into the past, assigning high values for good choices and low values
+for bad choices (don’t forget that sometimes you hit those random choices in
+college so you learn the parts of life they don’t talk about in school).
+For everything else, if you believe in Stochastic Gradient Descent than it is
+easy to see this actually making sense… I hope…&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2) How different is that from AlphaGo?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Not much… But instead of learning Q-values, AlphaGo thought it was
+smarter to use REINFORCE and learn to output
+actions probabilities directly. After that, she played several
+games against itself, so many that it could later learn the probability of
+winning from each position. Using all that information, during play time she
+uses a search technique to look for possible actions that would take her to
+positions with higher probability of winning. But she told me to mention here
+that she doesn’t search as many possibilities in the future as her older cousin
+DeepBlue did. She also said that she can play pretty well using just one GPU, the other
+99 were running high resolution Netflix series so she can catch up with human
+culture.&lt;/p&gt;
+&lt;p&gt;That being said, you should be able to modify this script in 2 or 3 days to get
+a reimplementation or AlphaGo and SkyNet should be 4 weeks away?&lt;/p&gt;
+&lt;p&gt;JK&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3) Your code sucks why don’t you write something better?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/EderSantana/X/blob/master/examples/catcher.py&quot;&gt;I’m trying…&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4) Did you learn that by yourself?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The bad parts, yes. The good things were thought me by my friends
+Evan Kriminger and Matthew Emigh.&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>March journal club</title>
+      <link>http://edersantana.github.io/articles/mar_papers/</link>
+      <pubDate>Thu, 24 Dec 2015 13:00:00 -0500</pubDate>
+      <guid isPermaLink="true">http://edersantana.github.io/articles/mar_papers/</guid>
+      <author></author>
+      <description>&lt;p&gt;WORK IN PROGRESS…&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;h3 id=&quot;detecting-temporally-consistent-objects-in-videos-through-object-class-label-propagation&quot;&gt;Detecting Temporally Consistent Objects in Videos through Object Class Label Propagation&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/pdf/1601.05447v1.pdf&quot;&gt;http://arxiv.org/pdf/1601.05447v1.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;weakly-supervised-disentangling-with-recurrent-transformations-for-3d-view-synthesis&quot;&gt;Weakly-supervised Disentangling with Recurrent Transformations for 3D View Synthesis&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/pdf/1601.00706v1.pdf&quot;&gt;http://arxiv.org/pdf/1601.00706v1.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;autoencoding-beyond-pixels-using-a-learned-similarity-metric&quot;&gt;Autoencoding beyond pixels using a learned similarity metric&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/pdf/1512.09300v1.pdf&quot;&gt;http://arxiv.org/pdf/1512.09300v1.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;reading-car-license-plates-using-deep-convolutional-neural-networks-and-lstms&quot;&gt;Reading Car License Plates Using Deep Convolutional Neural Networks and LSTMs&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/pdf/1601.05610v1.pdf&quot;&gt;http://arxiv.org/pdf/1601.05610v1.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;prioritized-experience-replay&quot;&gt;PRIORITIZED EXPERIENCE REPLAY&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/pdf/1511.05952v3.pdf&quot;&gt;http://arxiv.org/pdf/1511.05952v3.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;policy-distillation&quot;&gt;POLICY DISTILLATION&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/pdf/1511.06295v2.pdf&quot;&gt;http://arxiv.org/pdf/1511.06295v2.pdf&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;webnav-a-new-large-scale-task-for-natural-language-based-sequential-decision-making&quot;&gt;WebNav: A New Large-Scale Task for Natural Language based Sequential Decision Making&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/abs/1602.02261&quot;&gt;http://arxiv.org/abs/1602.02261&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;learning-to-communicate-to-solve-riddles-with-deep-distributed-recurrent-q-networks&quot;&gt;Learning to Communicate to Solve Riddles with Deep Distributed Recurrent Q-Networks&lt;/h3&gt;
+&lt;p&gt;link: &lt;a href=&quot;http://arxiv.org/abs/1602.02672&quot;&gt;http://arxiv.org/abs/1602.02672&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    <item>
+      <title>Agnez, analytics for deep learning research</title>
+      <link>http://edersantana.github.io/articles/agnez/</link>
+      <pubDate>Thu, 24 Dec 2015 13:00:00 -0500</pubDate>
+      <guid isPermaLink="true">http://edersantana.github.io/articles/agnez/</guid>
+      <author></author>
+      <description>&lt;p&gt;Machine learning is about writing programs with parameters that are learned from
+data. But writing the base
+architecture that will be learned requires intuition, inspection, trial, and
+error, all elements that can be enhanced with high quality visualization
+and analytics tools.&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Building visualization and analytics tools to assist deep learning (and machine
+learning in general) development was what motivated my brother &lt;a href=&quot;http://edersantana.github.io/articles/agnez/tiag0santana.github.io&quot;&gt;Tiago
+Santana&lt;/a&gt; and I to start
+&lt;a href=&quot;http://github.com/AgnezIO&quot;&gt;Agnez&lt;/a&gt;, a
+collection of visualization tools for deep learning.
+Models used for deep learning can be seen a business where the architecture and
+hyperparameters are the business choices and the accuracy or error in the test
+set a measure of business success. Keeping that metaphor in mind we looked for
+companies such as Keen IO and projects such as the 
+&lt;a href=&quot;http://edersantana.github.io/articles/agnez/www.automaticstatistician.com&quot;&gt;Automatic Statistician&lt;/a&gt; for
+inspiration to build research analytics and visualization tools. &lt;/p&gt;
+&lt;p&gt;Here we will describe our approach to serve the visualizations as a web app
+using &lt;a href=&quot;http://edersantana.github.io/articles/agnez/feathersjs.com&quot;&gt;Feathers.js&lt;/a&gt; in the backend and &lt;a href=&quot;http://edersantana.github.io/articles/agnez/github.com/keenlabs/dashboards&quot;&gt;Keen Dashboards&lt;/a&gt;
+in the frontend. For generating the graphs we are using a temporary solution
+based on &lt;a href=&quot;http://edersantana.github.io/articles/agnez/mpld3.github.io&quot;&gt;mpld3&lt;/a&gt; that converts Matplotlib graphs to D3. The
+full code is on &lt;a href=&quot;http://edersantana.github.io/articles/agnez/github.com/AgnezIO/minimal-app&quot;&gt;minimal-app&lt;/a&gt; repository.
+A schematic diagram of our architecture is shown in the figure below.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/agnez/drawing2.png&quot; alt=&quot;Figure 1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;We wanted to generate beautifully organized dashboards and we noticed that Keen Dashboards
+already lifted most of the design weight. But as an originally Python developer,
+I suggested to keep
+Matplotlib’s subplot arrangement and 
+flexibility without needing to rewrite html ourselves. An elegant solution to this
+problem would be to generate the dashboards dynamically using a REST API. We chose to develop
+the API with Feathers.js,
+a thin wrapper around Express.js for building real time REST
+APIs with Node.js. This is what we needed to start a simple to use and general API for
+handling, storing and plotting model analytics.
+In coffeescript and using NeDB as the database, our
+Feathers app is simply:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-coffeescript&quot;&gt;feathers = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'feathers'&lt;/span&gt;
+mongodb = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;'feathers-mongodb'&lt;/span&gt;)
+memory = mongodb {
+  &lt;span class=&quot;attribute&quot;&gt;db&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'edermempy'&lt;/span&gt;
+  &lt;span class=&quot;attribute&quot;&gt;collection&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'values'&lt;/span&gt;
+}
+
+bodyParser = &lt;span class=&quot;built_in&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'body-parser'&lt;/span&gt;
+app = feathers()
+
+app.configure feathers.rest()
+  .configure feathers.socketio()
+  .use bodyParser.json()
+  .use &lt;span class=&quot;string&quot;&gt;'/values'&lt;/span&gt;, memory
+  .use &lt;span class=&quot;string&quot;&gt;'/'&lt;/span&gt;, feathers.static(__dirname)
+  .listen &lt;span class=&quot;number&quot;&gt;3000&lt;/span&gt;
+
+&lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log &lt;span class=&quot;string&quot;&gt;'App listening on port 3000
+console.log '&lt;/span&gt;Index at&lt;span class=&quot;string&quot;&gt;', __dirname+'&lt;/span&gt;&lt;span class=&quot;regexp&quot;&gt;/static/&lt;/span&gt;&lt;span class=&quot;string&quot;&gt;'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;All the hard work is handled by &lt;a href=&quot;http://edersantana.github.io/articles/agnez/&quot;&gt;feathers-nedb&lt;/a&gt; CRUD and &lt;a href=&quot;http://edersantana.github.io/articles/agnez/&quot;&gt;feathers-client&lt;/a&gt; that
+uses socket.io to update the browser client in real time. The machine
+learning client training our model with Python sends POST
+requests to the server. These requests trigger events in the server that
+updates the browser page. For this simple demo, our Python client will send html
+strings generated with mpld3 and a gif. When training a deep learning model the
+html string would be graphs of cost functions, accuracy, weight norms and other
+useful analytics. As we mentioned this is a simple temporary solution for
+illustration purposes, it would be more general to use a native D3 chart,
+patch the graphs in the browser side and only send numbers from the machine
+learning side. Nevertheless, deep learning epochs, or passes through the
+training datasets, usually
+take a few seconds (or even minutes and hours depending on how large the training dataset is)
+and sending html strings does not add a considerable overhead.&lt;/p&gt;
+&lt;p&gt;The index.html is pretty minimal since everything will be generated dynamically
+when we send data using the API. We start with a simple &lt;code&gt;&amp;lt;div id=dashboard&amp;gt;&lt;/code&gt;
+and add new Bootstrap rows later. &lt;code&gt;script.coffee&lt;/code&gt; in the server has a basic
+Keen Dashboard cell as follows:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-coffeescript&quot;&gt;String.prototype.format = &lt;span class=&quot;function&quot;&gt;-&amp;gt;&lt;/span&gt;
+  args = arguments
+  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.replace &lt;span class=&quot;regexp&quot;&gt;/{(\d+)}/g&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;(match, number)&lt;/span&gt; -&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;typeof&lt;/span&gt; args[number] &lt;span class=&quot;keyword&quot;&gt;isnt&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'undefined'&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;then&lt;/span&gt; args[number] &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; match
+
+cellstr = &lt;span class=&quot;string&quot;&gt;&quot;&quot;&quot;
+  &amp;lt;div class=&quot;col-sm-6&quot;&amp;gt;
+    &amp;lt;div class=&quot;chart-wrapper&quot;&amp;gt;
+      &amp;lt;div class=&quot;chart-title&quot; id=title{1}&amp;gt;
+        {0} 
+      &amp;lt;/div&amp;gt;
+      &amp;lt;div class=&quot;chart-stage&quot; id=&quot;grid{1}&quot;&amp;gt;
+        {2} 
+      &amp;lt;/div&amp;gt;
+      &amp;lt;div class=&quot;chart-notes&quot; id=&quot;description{1}&quot;&amp;gt;
+        {3} 
+      &amp;lt;/div&amp;gt;
+    &amp;lt;/div&amp;gt;
+  &amp;lt;/div&amp;gt;
+&quot;&quot;&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;With this code we can fill the placeholders using a Python inspired syntax:
+&lt;code&gt;&amp;quot;dat {0} is {1}&amp;quot;.format &amp;quot;string&amp;quot;, &amp;quot;cool&amp;quot;&lt;/code&gt; which returns &lt;code&gt;&amp;quot;dat string is cool&amp;quot;&lt;/code&gt;.
+When creating a new cell, we simply append the filled string to &lt;code&gt;#dashboard&lt;/code&gt;‘s html.
+When the html string or an image URL is patched,
+we update that dashboard cell using the snippet below:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-coffeescript&quot;&gt;values.&lt;span class=&quot;literal&quot;&gt;on&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;'patched'&lt;/span&gt;, &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;params&quot;&gt;(val)&lt;/span&gt; -&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;built_in&quot;&gt;console&lt;/span&gt;.log &lt;span class=&quot;string&quot;&gt;'patching'&lt;/span&gt;, val.name
+  $grid = $ &lt;span class=&quot;string&quot;&gt;&quot;#grid&lt;span class=&quot;subst&quot;&gt;#{val.pos}&lt;/span&gt;&quot;&lt;/span&gt;
+  $title = $ &lt;span class=&quot;string&quot;&gt;&quot;#title&lt;span class=&quot;subst&quot;&gt;#{val.pos}&lt;/span&gt;&quot;&lt;/span&gt;
+  $description = $ &lt;span class=&quot;string&quot;&gt;&quot;#description&lt;span class=&quot;subst&quot;&gt;#{val.pos}&lt;/span&gt;&quot;&lt;/span&gt;
+
+  $title.html val.name
+  $description.html val.description
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; val.type &lt;span class=&quot;keyword&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;html&quot;&lt;/span&gt;
+    $grid.html val.value
+  &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; val.type &lt;span class=&quot;keyword&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;img&quot;&lt;/span&gt;
+    $grid.html &lt;span class=&quot;string&quot;&gt;&quot;&amp;lt;img src='&lt;span class=&quot;subst&quot;&gt;#{val.value}&lt;/span&gt;'&amp;gt;&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To test the app, we use the Python script ahead.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-python&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# Remember that we are using feathers database CRUD&lt;/span&gt;
+
+&lt;span class=&quot;comment&quot;&gt;# Allocate cell space in the dashboard by calling the CREATE method &lt;/span&gt;
+url = &lt;span class=&quot;string&quot;&gt;&quot;./images/main_img.gif&quot;&lt;/span&gt;
+r = requests.post(&lt;span class=&quot;string&quot;&gt;&quot;http://localhost:3000/values&quot;&lt;/span&gt;,
+                  json={&lt;span class=&quot;string&quot;&gt;'name'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'html'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'value'&lt;/span&gt;: [], &lt;span class=&quot;string&quot;&gt;'pos'&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;,
+                        &lt;span class=&quot;string&quot;&gt;'description'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;})
+id0 = json.loads(r.text)[&lt;span class=&quot;string&quot;&gt;&quot;_id&quot;&lt;/span&gt;]
+r = requests.post(&lt;span class=&quot;string&quot;&gt;&quot;http://localhost:3000/values&quot;&lt;/span&gt;,
+                  json={&lt;span class=&quot;string&quot;&gt;'name'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'img'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'value'&lt;/span&gt;: [], &lt;span class=&quot;string&quot;&gt;'pos'&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;,
+                        &lt;span class=&quot;string&quot;&gt;'description'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;''&lt;/span&gt;})
+id1 = json.loads(r.text)[&lt;span class=&quot;string&quot;&gt;&quot;_id&quot;&lt;/span&gt;]
+fig = plt.figure()
+numbers = []
+
+&lt;span class=&quot;comment&quot;&gt;# Update the cell html calling the PATCH method&lt;/span&gt;
+&lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; i &lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt; range(&lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;):
+    time.sleep(&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;) &lt;span class=&quot;comment&quot;&gt;# simulate wait time of an epoch&lt;/span&gt;
+    plt.clf()
+    numbers.append(random.random()) &lt;span class=&quot;comment&quot;&gt;# new value&lt;/span&gt;
+    plt.plot(numbers)
+    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; len(numbers) &amp;gt; &lt;span class=&quot;number&quot;&gt;20&lt;/span&gt;:
+        &lt;span class=&quot;keyword&quot;&gt;del&lt;/span&gt; numbers[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;] &lt;span class=&quot;comment&quot;&gt;# delete old values&lt;/span&gt;
+    html = mpld3.fig_to_html(fig) &lt;span class=&quot;comment&quot;&gt;# convert matplotlib to d3&lt;/span&gt;
+    &lt;span class=&quot;comment&quot;&gt;# PATCH requests&lt;/span&gt;
+    r = requests.patch(&lt;span class=&quot;string&quot;&gt;&quot;http://localhost:3000/values/&quot;&lt;/span&gt; + str(id0),
+                       json={&lt;span class=&quot;string&quot;&gt;'name'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'test1'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'html'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'value'&lt;/span&gt;: html,
+                             &lt;span class=&quot;string&quot;&gt;'pos'&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'description'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'simple test'&lt;/span&gt;})
+    r = requests.patch(&lt;span class=&quot;string&quot;&gt;&quot;http://localhost:3000/values/&quot;&lt;/span&gt; + str(id1),
+                       json={&lt;span class=&quot;string&quot;&gt;'name'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'test2'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'type'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'img'&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'value'&lt;/span&gt;: url,
+                             &lt;span class=&quot;string&quot;&gt;'pos'&lt;/span&gt;: &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;'description'&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;'simple image'&lt;/span&gt;})
+    &lt;span class=&quot;keyword&quot;&gt;print&lt;/span&gt; r
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note that since REST APIs are universal, we could send pictures and graphs with any
+other language. In the next iteration of this app, using native D3 charts
+generated in the browser side we
+will make even easier to serve visualizations in a way that is language agnostic to the
+machine learning side (Lua and C++ are also popular for deep learning). &lt;/p&gt;
+&lt;p&gt;For those interested in playing with this code, from the source root directory run&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-shell&quot;&gt;coffee app.coffee
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;to start up the app and run&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;lang-shell&quot;&gt;python test.py
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;to send data using the API. We can see the results at &lt;a href=&quot;http://localhost:3000&quot;&gt;http://localhost:3000&lt;/a&gt;
+and &lt;a href=&quot;http://localhost:3000/values&quot;&gt;https://localhost:3000/values&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;If you are training a deep learning model with Keras you can run the app and
+use the Keras callbacks we provide, as in this
+&lt;a href=&quot;https://github.com/AgnezIO/agnez/blob/master/examples/MNIST.ipynb&quot;&gt;example&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Since Agnez is an young project, we are expecting it evolve quickly. Help,
+suggestions and feedback are welcome.&lt;/p&gt;
+</description>
+    </item>
+    <item>
       <title>Does AI stand for Alchemical Intelligence?</title>
-      <link>http://edersantana.github.io/blog/articles/ai_alchemy/</link>
-      <pubDate>Mon, 14 Dec 2015 16:00:00 -0300</pubDate>
-      <guid isPermaLink="true">http://edersantana.github.io/blog/articles/ai_alchemy/</guid>
+      <link>http://edersantana.github.io/articles/ai_alchemy/</link>
+      <pubDate>Mon, 14 Dec 2015 16:00:00 -0500</pubDate>
+      <guid isPermaLink="true">http://edersantana.github.io/articles/ai_alchemy/</guid>
       <author></author>
       <description>&lt;p&gt;AI stands for artificial intelligence, but it currently has a lot in
 common with chemistry in the ages when it was named
 Alchemy. &lt;/p&gt;
 &lt;p&gt;&lt;span class=&quot;more&quot;&gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://edersantana.github.io/blog/articles/ai_alchemy/blog/articles/ai_alchemy/alchemy1.jpg&quot; alt=&quot;alchemy symbols&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/articles/ai_alchemy/alchemy.png&quot; alt=&quot;alchemy symbols&quot;&gt;&lt;/p&gt;
 &lt;p&gt;Alex net recipe:  &lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;5 five convolutional layers  &lt;/li&gt;

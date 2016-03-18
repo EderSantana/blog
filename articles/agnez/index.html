@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>Agnez, analytics for deep learning research - Eder Santana
+    </title>
+    <link rel="alternate" href="http://edersantana.github.io/feed.xml" type="application/rss+xml" title="">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic|Anonymous+Pro:400,700,400italic,700italic|Merriweather:400,700,300">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body class="article-detail">
+    <header class="header">
+      <div class="content-wrap">
+        <h1>Agnez, analytics for deep learning research</h1>
+        <p class="author">Written by <span class="author"><a href="mailto:edersantana@ufl.edu">Eder Santana</a></span>
+        </p>
+      </div>
+    </header>
+    <div id="content">
+      <div class="content-wrap">
+        <article class="article">
+          <section class="content"><p>Machine learning is about writing programs with parameters that are learned from
+data. But writing the base
+architecture that will be learned requires intuition, inspection, trial, and
+error, all elements that can be enhanced with high quality visualization
+and analytics&nbsp;tools.</p>
+<p><span class="more"></span></p>
+<p>Building visualization and analytics tools to assist deep learning (and machine
+learning in general) development was what motivated my brother <a href="/articles/agnez/tiag0santana.github.io">Tiago
+Santana</a> and I to start
+<a href="http://github.com/AgnezIO">Agnez</a>, a
+collection of visualization tools for deep learning.
+Models used for deep learning can be seen a business where the architecture and
+hyperparameters are the business choices and the accuracy or error in the test
+set a measure of business success. Keeping that metaphor in mind we looked for
+companies such as Keen <span class="caps">IO</span> and projects such as the 
+<a href="/articles/agnez/www.automaticstatistician.com">Automatic Statistician</a> for
+inspiration to build research analytics and visualization&nbsp;tools. </p>
+<p>Here we will describe our approach to serve the visualizations as a web app
+using <a href="/articles/agnez/feathersjs.com">Feathers.js</a> in the backend and <a href="/articles/agnez/github.com/keenlabs/dashboards">Keen Dashboards</a>
+in the frontend. For generating the graphs we are using a temporary solution
+based on <a href="/articles/agnez/mpld3.github.io">mpld3</a> that converts Matplotlib graphs to D3. The
+full code is on <a href="/articles/agnez/github.com/AgnezIO/minimal-app">minimal-app</a> repository.
+A schematic diagram of our architecture is shown in the figure&nbsp;below.</p>
+<p><img src="/articles/agnez/drawing2.png" alt="Figure 1"></p>
+<p>We wanted to generate beautifully organized dashboards and we noticed that Keen Dashboards
+already lifted most of the design weight. But as an originally Python developer,
+I suggested to keep
+Matplotlib’s subplot arrangement and 
+flexibility without needing to rewrite html ourselves. An elegant solution to this
+problem would be to generate the dashboards dynamically using a <span class="caps">REST</span> API. We chose to develop
+the API with Feathers.js,
+a thin wrapper around Express.js for building real time REST
+APIs with Node.js. This is what we needed to start a simple to use and general API for
+handling, storing and plotting model analytics.
+In coffeescript and using NeDB as the database, our
+Feathers app is&nbsp;simply:</p>
+<pre><code class="lang-coffeescript">feathers = <span class="built_in">require</span> <span class="string">'feathers'</span>
+mongodb = <span class="built_in">require</span>(<span class="string">'feathers-mongodb'</span>)
+memory = mongodb {
+  <span class="attribute">db</span>: <span class="string">'edermempy'</span>
+  <span class="attribute">collection</span>: <span class="string">'values'</span>
+}
+
+bodyParser = <span class="built_in">require</span> <span class="string">'body-parser'</span>
+app = feathers()
+
+app.configure feathers.rest()
+  .configure feathers.socketio()
+  .use bodyParser.json()
+  .use <span class="string">'/values'</span>, memory
+  .use <span class="string">'/'</span>, feathers.static(__dirname)
+  .listen <span class="number">3000</span>
+
+<span class="built_in">console</span>.log <span class="string">'App listening on port 3000
+console.log '</span>Index at<span class="string">', __dirname+'</span><span class="regexp">/static/</span><span class="string">'</span>
+</code></pre>
+<p>All the hard work is handled by <a href="/articles/agnez/">feathers-nedb</a> <span class="caps">CRUD</span> and <a href="/articles/agnez/">feathers-client</a> that
+uses socket.io to update the browser client in real time. The machine
+learning client training our model with Python sends <span class="caps">POST</span>
+requests to the server. These requests trigger events in the server that
+updates the browser page. For this simple demo, our Python client will send html
+strings generated with mpld3 and a gif. When training a deep learning model the
+html string would be graphs of cost functions, accuracy, weight norms and other
+useful analytics. As we mentioned this is a simple temporary solution for
+illustration purposes, it would be more general to use a native D3 chart,
+patch the graphs in the browser side and only send numbers from the machine
+learning side. Nevertheless, deep learning epochs, or passes through the
+training datasets, usually
+take a few seconds (or even minutes and hours depending on how large the training dataset is)
+and sending html strings does not add a considerable&nbsp;overhead.</p>
+<p>The index.html is pretty minimal since everything will be generated dynamically
+when we send data using the <span class="caps">API</span>. We start with a simple <code>&lt;div id=dashboard&gt;</code>
+and add new Bootstrap rows later. <code>script.coffee</code> in the server has a basic
+Keen Dashboard cell as&nbsp;follows:</p>
+<pre><code class="lang-coffeescript">String.prototype.format = <span class="function">-&gt;</span>
+  args = arguments
+  <span class="keyword">return</span> <span class="keyword">this</span>.replace <span class="regexp">/{(\d+)}/g</span>, <span class="function"><span class="params">(match, number)</span> -&gt;</span>
+    <span class="keyword">return</span> <span class="keyword">if</span> <span class="keyword">typeof</span> args[number] <span class="keyword">isnt</span> <span class="string">'undefined'</span> <span class="keyword">then</span> args[number] <span class="keyword">else</span> match
+
+cellstr = <span class="string">"""
+  &lt;div class="col-sm-6"&gt;
+    &lt;div class="chart-wrapper"&gt;
+      &lt;div class="chart-title" id=title{1}&gt;
+        {0} 
+      &lt;/div&gt;
+      &lt;div class="chart-stage" id="grid{1}"&gt;
+        {2} 
+      &lt;/div&gt;
+      &lt;div class="chart-notes" id="description{1}"&gt;
+        {3} 
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+"""</span>
+</code></pre>
+<p>With this code we can fill the placeholders using a Python inspired syntax:
+<code>&quot;dat {0} is {1}&quot;.format &quot;string&quot;, &quot;cool&quot;</code> which returns <code>&quot;dat string is cool&quot;</code>.
+When creating a new cell, we simply append the filled string to <code>#dashboard</code>‘s html.
+When the html string or an image <span class="caps">URL</span> is patched,
+we update that dashboard cell using the snippet&nbsp;below:</p>
+<pre><code class="lang-coffeescript">values.<span class="literal">on</span> <span class="string">'patched'</span>, <span class="function"><span class="params">(val)</span> -&gt;</span>
+  <span class="built_in">console</span>.log <span class="string">'patching'</span>, val.name
+  $grid = $ <span class="string">"#grid<span class="subst">#{val.pos}</span>"</span>
+  $title = $ <span class="string">"#title<span class="subst">#{val.pos}</span>"</span>
+  $description = $ <span class="string">"#description<span class="subst">#{val.pos}</span>"</span>
+
+  $title.html val.name
+  $description.html val.description
+  <span class="keyword">if</span> val.type <span class="keyword">is</span> <span class="string">"html"</span>
+    $grid.html val.value
+  <span class="keyword">if</span> val.type <span class="keyword">is</span> <span class="string">"img"</span>
+    $grid.html <span class="string">"&lt;img src='<span class="subst">#{val.value}</span>'&gt;"</span>
+</code></pre>
+<p>To test the app, we use the Python script&nbsp;ahead.</p>
+<pre><code class="lang-python"><span class="comment"># Remember that we are using feathers database <span class="caps">CRUD</span></span>
+
+<span class="comment"># Allocate cell space in the dashboard by calling the <span class="caps">CREATE</span> method </span>
+url = <span class="string">"./images/main_img.gif"</span>
+r = requests.post(<span class="string">"http://localhost:3000/values"</span>,
+                  json={<span class="string">'name'</span>: <span class="string">''</span>, <span class="string">'type'</span>: <span class="string">'html'</span>, <span class="string">'value'</span>: [], <span class="string">'pos'</span>: <span class="number">0</span>,
+                        <span class="string">'description'</span>: <span class="string">''</span>})
+id0 = json.loads(r.text)[<span class="string">"_id"</span>]
+r = requests.post(<span class="string">"http://localhost:3000/values"</span>,
+                  json={<span class="string">'name'</span>: <span class="string">''</span>, <span class="string">'type'</span>: <span class="string">'img'</span>, <span class="string">'value'</span>: [], <span class="string">'pos'</span>: <span class="number">1</span>,
+                        <span class="string">'description'</span>: <span class="string">''</span>})
+id1 = json.loads(r.text)[<span class="string">"_id"</span>]
+fig = plt.figure()
+numbers = []
+
+<span class="comment"># Update the cell html calling the <span class="caps">PATCH</span> method</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">100</span>):
+    time.sleep(<span class="number">2</span>) <span class="comment"># simulate wait time of an epoch</span>
+    plt.clf()
+    numbers.append(random.random()) <span class="comment"># new value</span>
+    plt.plot(numbers)
+    <span class="keyword">if</span> len(numbers) &gt; <span class="number">20</span>:
+        <span class="keyword">del</span> numbers[<span class="number">0</span>] <span class="comment"># delete old values</span>
+    html = mpld3.fig_to_html(fig) <span class="comment"># convert matplotlib to d3</span>
+    <span class="comment"># <span class="caps">PATCH</span> requests</span>
+    r = requests.patch(<span class="string">"http://localhost:3000/values/"</span> + str(id0),
+                       json={<span class="string">'name'</span>: <span class="string">'test1'</span>, <span class="string">'type'</span>: <span class="string">'html'</span>, <span class="string">'value'</span>: html,
+                             <span class="string">'pos'</span>: <span class="number">0</span>, <span class="string">'description'</span>: <span class="string">'simple test'</span>})
+    r = requests.patch(<span class="string">"http://localhost:3000/values/"</span> + str(id1),
+                       json={<span class="string">'name'</span>: <span class="string">'test2'</span>, <span class="string">'type'</span>: <span class="string">'img'</span>, <span class="string">'value'</span>: url,
+                             <span class="string">'pos'</span>: <span class="number">1</span>, <span class="string">'description'</span>: <span class="string">'simple image'</span>})
+    <span class="keyword">print</span> r
+</code></pre>
+<p>Note that since <span class="caps">REST</span> APIs are universal, we could send pictures and graphs with any
+other language. In the next iteration of this app, using native D3 charts
+generated in the browser side we
+will make even easier to serve visualizations in a way that is language agnostic to the
+machine learning side (Lua and C++ are also popular for deep&nbsp;learning). </p>
+<p>For those interested in playing with this code, from the source root directory&nbsp;run</p>
+<pre><code class="lang-shell">coffee app.coffee
+</code></pre>
+<p>to start up the app and&nbsp;run</p>
+<pre><code class="lang-shell">python test.py
+</code></pre>
+<p>to send data using the <span class="caps">API</span>. We can see the results at <a href="http://localhost:3000">http://localhost:3000</a>
+and <a href="http://localhost:3000/values">https://localhost:3000/values</a></p>
+<p>If you are training a deep learning model with Keras you can run the app and
+use the Keras callbacks we provide, as in this
+<a href="https://github.com/AgnezIO/agnez/blob/master/examples/MNIST.ipynb">example</a>.</p>
+<p>Since Agnez is an young project, we are expecting it evolve quickly. Help,
+suggestions and feedback are&nbsp;welcome.</p>
+</section>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="content-wrap">
+        <div class="nav"><a href="/">« Full blog</a></div>
+        <section class="about"><p>These are personal words. Here you may find references to unconventional ideas.
+Please, read it at your own risk or don’t read it at all. If you are looking
+for my conventional science publications, please visit <a href="http://cnel.ufl.edu/people/people.php?name=eder">this website</a>.</p>
+
+        </section>
+        <section class="copy">
+          <p>&copy; 2016 Eder Santana &mdash; powered by&nbsp;<a href="https://github.com/jnordberg/wintersmith">Wintersmith</a>
+          </p>
+        </section>
+      </div>
+    </footer>
+  </body>
+</html>

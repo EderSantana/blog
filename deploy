@@ -1,0 +1,4 @@
+cd build
+mv index.html blog.html
+cp -r * ~/js/edersantana.github.io
+cd ~/js/edersantana.github.io

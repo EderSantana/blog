@@ -5,7 +5,7 @@ date: 2016-3-16 22:25
 template: article.jade
 ---
 
-Get started with reinforcement learning in less that 200 lines of code with
+Get started with reinforcement learning in less than 200 lines of code with
 Keras (Theano or Tensorflow, it's your choice).
 
 <span class="more"></span>
@@ -30,7 +30,7 @@ you will see what Experience Replay is and how to use it to get you them
 batches - even in problems where an agent only sees one sample of the environment state
 at a time.
 
-So here is the [link for our code](https://gist.github.com/EderSantana/c7222daa328f0e885093).
+So here is the [link to our code](https://gist.github.com/EderSantana/c7222daa328f0e885093).
 In that code Keras plays the catch game, where it should
 catch a single pixel "fruit" using a three pixel "basket". The fruit falls one
 pixel per step and the Keras network gets a reward of +1 if it catches the
